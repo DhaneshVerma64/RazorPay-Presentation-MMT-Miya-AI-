@@ -330,13 +330,11 @@
         /* Intersections / Reveals */
         .reveal-element {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            transition: opacity 0.5s ease-out;
         }
 
         .reveal-element.revealed {
             opacity: 1;
-            transform: translateY(0);
         }
 
         .reveal-element .card, 
@@ -2018,6 +2016,7 @@
 
         .closing-links {
             display: flex;
+            justify-content: center;
             gap: 20px;
             margin-top: 24px;
         }
