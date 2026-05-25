@@ -2353,7 +2353,7 @@
                 </div>
                 <div class="sandbox-layout" id="screen1-sandbox-layout" style="display: block; height: 786px; background: #F9FAFB;">
                     <!-- Note for Dhanesh: You can replace the src URL below with your actual Figma/Framer Prototype link! -->
-                    <iframe src="https://make-my-trip-ruby.vercel.app/?screen=1" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="about:blank" data-src="https://make-my-trip-ruby.vercel.app/?screen=1" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 12px; font-size: 13px; color: #6B7280;">
@@ -2485,7 +2485,7 @@
                 </div>
                 <div class="sandbox-layout" id="screen2-sandbox-layout" style="display: block; height: 786px; background: #0A0A1A;">
                     <!-- Note for Dhanesh: You can replace the src URL below with your actual Figma/Framer Prototype link! -->
-                    <iframe src="https://make-my-trip-ruby.vercel.app/?screen=2" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="about:blank" data-src="https://make-my-trip-ruby.vercel.app/?screen=2" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 12px; font-size: 13px; color: rgba(255,255,255,0.4);">
@@ -2648,7 +2648,7 @@
                 </div>
                 <div class="sandbox-layout" id="screen4-sandbox-layout" style="display: block; height: 786px; background: #FFFFFF;">
                     <!-- Note for Dhanesh: You can replace the src URL below with your actual Figma/Framer Prototype link! -->
-                    <iframe src="https://make-my-trip-ruby.vercel.app/?screen=4" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="about:blank" data-src="https://make-my-trip-ruby.vercel.app/?screen=4" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 12px; font-size: 13px; color: #6B7280;">
@@ -2695,7 +2695,7 @@
                 </div>
                 <div class="sandbox-layout" id="screen5-sandbox-layout" style="display: block; height: 786px; background: #111827;">
                     <!-- Note for Dhanesh: You can replace the src URL below with your actual Figma/Framer Prototype link! -->
-                    <iframe src="https://make-my-trip-ruby.vercel.app/?screen=5" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="about:blank" data-src="https://make-my-trip-ruby.vercel.app/?screen=5" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 12px; font-size: 13px; color: rgba(255,255,255,0.4);">
@@ -2952,7 +2952,7 @@
                 </div>
                 <div class="sandbox-layout" id="screen6-sandbox-layout" style="display: block; height: 786px; background: #FFFFFF;">
                     <!-- Note for Dhanesh: You can replace the src URL below with your actual Figma/Framer Prototype link! -->
-                    <iframe src="https://make-my-trip-ruby.vercel.app/?screen=6" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="about:blank" data-src="https://make-my-trip-ruby.vercel.app/?screen=6" style="width: 100%; height: 100%; border: none;" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 12px; font-size: 13px; color: rgba(255,255,255,0.4);">
@@ -3372,6 +3372,50 @@
                 document.getElementById('whatsapp-scroller').scrollTop = document.getElementById('whatsapp-scroller').scrollHeight;
             }, 1200);
         }
+
+        /* ==========================================
+           E. LAZY-LOAD SANDBOX IFRAMES ON INTERSECTION
+           ========================================== */
+        const sandboxObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const iframe = entry.target.querySelector('iframe');
+                    if (iframe && (iframe.src === 'about:blank' || !iframe.src)) {
+                        iframe.src = iframe.getAttribute('data-src');
+                    }
+                }
+            });
+        }, {
+            threshold: 0.05,
+            rootMargin: '0px 0px 300px 0px' // Pre-load 300px before scrolling into view for a seamless, fast experience
+        });
+
+        document.querySelectorAll('.sandbox-layout').forEach(el => {
+            sandboxObserver.observe(el);
+        });
+
+        // Programmatic scroll-guard to prevent any focus-induced scroll jumps on load
+        let pageLoadedUserInteracted = false;
+        const pageLoadScrollGuard = () => {
+            if (!pageLoadedUserInteracted && window.scrollY > 0) {
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.addEventListener('scroll', pageLoadScrollGuard);
+
+        // Remove the guard once the user interacts with the page
+        ['mousedown', 'touchstart', 'keydown', 'wheel'].forEach(event => {
+            window.addEventListener(event, () => {
+                pageLoadedUserInteracted = true;
+                window.removeEventListener('scroll', pageLoadScrollGuard);
+            }, { once: true });
+        });
+
+        // Auto clean up after 2.5 seconds when all initial iframe loading cycles are finished
+        setTimeout(() => {
+            window.removeEventListener('scroll', pageLoadScrollGuard);
+        }, 2500);
     </script>
 </body>
 </html>
